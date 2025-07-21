@@ -1,8 +1,11 @@
 import "reflect-metadata";
 import Fastify from "fastify";
 import { config } from "./config";
+import { DataSource as TypeOrmDataSource } from "typeorm";
 import { AppDataSource } from "./database/connection";
 import { logger } from "./utils/logger";
+import { AppRoutes } from "./routes/index.route";
+import Container from "typedi";
 
 export async function bootstrap() {
   const app = Fastify({ logger: true });
@@ -13,17 +16,19 @@ export async function bootstrap() {
 
   let isShuttingDown = false;
 
-  app.get("/", async () => {
-    return { message: "Hello Fastify + TypeScript!" };
-  });
+  // Register it to typedi
 
   try {
     await AppDataSource.initialize();
+    Container.set(TypeOrmDataSource, AppDataSource);
     logger.info("PostgreSQL connected 🎉");
   } catch (err) {
     logger.error({ err }, "Failed to connect to database");
     process.exit(1);
   }
+
+  const appRoutes = Container.get(AppRoutes);
+  appRoutes.registerAll(app);
 
   const closeGracefully = async (signal: string) => {
     if (isShuttingDown) return;

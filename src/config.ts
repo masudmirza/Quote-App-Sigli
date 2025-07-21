@@ -13,6 +13,7 @@ const configSchema = z.object({
   REDIS_HOST: z.string().min(1),
   REDIS_PORT: z.coerce.number().default(6379),
   DATABASE_URL: z.string(),
+  JWT_SECRET: z.string().min(10),
 });
 
 export const config = configSchema.parse(process.env);

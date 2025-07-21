@@ -1,13 +1,10 @@
-import { DataSource, useContainer } from "typeorm";
-import { Container } from "typedi";
+import { DataSource } from "typeorm";
 import { config } from "../config";
-import { UserEntity } from "./entities/user.entity";
-import { QuoteEntity } from "./entities/quote.entity";
-import { LikeEntity } from "./entities/like.entity";
 import { CatalogItemEntity } from "./entities/catalog-item.entity";
+import { LikeEntity } from "./entities/like.entity";
+import { QuoteEntity } from "./entities/quote.entity";
 import { TrendingQuoteEntity } from "./entities/trending-quotes";
-
-// useContainer(Container);
+import { UserEntity } from "./entities/user.entity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
