@@ -1,0 +1,143 @@
+name: "Deploy Application"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-app:
+    name: "Deploy Node.js App"
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "app/package-lock.json"
+
+      - name: "Install Dependencies"
+        working-directory: app
+        run: |
+          npm ci
+          echo "Dependencies installed"
+
+      - name: "Build TypeScript"
+        working-directory: app
+        run: |
+          echo "Building TypeScript..."
+          npm run build
+          echo "Checking dist folder:"
+          ls -la dist/
+          echo "Verifying index.js exists:"
+          if [ -f "dist/index.js" ]; then
+            echo "dist/index.js found"
+          else
+            echo "dist/index.js NOT found"
+            exit 1
+          fi
+
+      - name: "Prepare Deployment Package"
+        working-directory: app
+        run: |
+          echo "Creating deployment package..."
+
+          # Create deployment directory
+          mkdir -p deploy
+
+          # Copy necessary files
+          cp -r dist/ deploy/
+          cp package.json deploy/
+          cp package-lock.json deploy/ 2>/dev/null || echo "No package-lock.json"
+
+          # Create web.config for Azure
+          cat > deploy/web.config << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <handlers>
+                <add name="iisnode" path="dist/index.js" verb="*" modules="iisnode"/>
+              </handlers>
+              <rewrite>
+                <rules>
+                  <rule name="DynamicContent">
+                    <match url="/*" />
+                    <action type="Rewrite" url="dist/index.js"/>
+                  </rule>
+                </rules>
+              </rewrite>
+              <iisnode 
+                watchedFiles="web.config;*.js"
+                nodeProcessCommandLine="node"
+                interceptor="iisnode/interceptor.js" />
+            </system.webServer>
+          </configuration>
+          EOF
+
+          echo "📋 Deployment package contents:"
+          find deploy -type f
+
+          # Create zip from deploy directory
+          cd deploy
+          zip -r ../../deploy.zip . -x "*.ts" "tsconfig.json"
+          cd ..
+
+          echo "Deployment package ready"
+
+      - name: "Azure Login"
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: "Deploy to App Service"
+        run: |
+          echo "🚀 Deploying to Azure App Service..."
+
+          az webapp deployment source config-zip \
+            --resource-group "rg-quoteapp-development" \
+            --name "app-quoteapp-development" \
+            --src deploy.zip
+
+          echo "Deployment completed"
+
+      - name: "Wait for Deployment"
+        run: |
+          echo "Waiting for deployment to complete..."
+          sleep 60
+
+      - name: "Health Check"
+        run: |
+          echo "Running health check..."
+          APP_URL="https://app-quoteapp-development.azurewebsites.net"
+
+          # Try multiple times
+          for i in {1..10}; do
+            echo "Attempt $i of 10..."
+            
+            if curl -f -s "$APP_URL/health" >/dev/null 2>&1; then
+              echo "Health check passed!"
+              echo "App is live at: $APP_URL"
+              exit 0
+            else
+              echo "Health check failed, retrying in 30s..."
+              sleep 30
+            fi
+          done
+
+          echo "Health check failed after 10 attempts"
+          echo "Check logs: az webapp log tail --name app-quoteapp-development --resource-group rg-quoteapp-development"
+          exit 1

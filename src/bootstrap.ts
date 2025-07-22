@@ -27,8 +27,6 @@ export async function bootstrap() {
 
   let isShuttingDown = false;
 
-  // Register it to typedi
-
   try {
     await AppDataSource.initialize();
 
@@ -39,6 +37,10 @@ export async function bootstrap() {
     logger.error({ err }, "Failed to connect to database");
     process.exit(1);
   }
+
+  app.get("/health", async (request, reply) => {
+    return { status: "healthy", timestamp: new Date().toISOString() };
+  });
 
   const appRoutes = Container.get(AppRoutes);
   appRoutes.registerAll(app);
@@ -53,7 +55,6 @@ export async function bootstrap() {
     introspection: true,
   });
 
-  // start server
   await server.start().then(() => {
     logger.info(
       `🚀 Apollo Server started on http://localhost:${config.HTTP_PORT}/graphql`,

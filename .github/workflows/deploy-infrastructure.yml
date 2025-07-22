@@ -1,0 +1,180 @@
+name: "Deploy Infrastructure"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/deploy-infrastructure.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/deploy-infrastructure.yml"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action to perform"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  terraform:
+    name: "Deploy Infrastructure"
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+          terraform_wrapper: false
+
+      - name: "Check Secrets Exist"
+        run: |
+          echo "AZURE_CLIENT_ID exists: ${{ secrets.AZURE_CLIENT_ID != '' }}"
+          echo "AZURE_TENANT_ID exists: ${{ secrets.AZURE_TENANT_ID != '' }}"
+          echo "AZURE_SUBSCRIPTION_ID exists: ${{ secrets.AZURE_SUBSCRIPTION_ID != '' }}"
+          echo "TFSTATE_RESOURCE_GROUP exists: ${{ secrets.TFSTATE_RESOURCE_GROUP != '' }}"
+          echo "TFSTATE_STORAGE_ACCOUNT exists: ${{ secrets.TFSTATE_STORAGE_ACCOUNT != '' }}"
+          echo "POSTGRES_SERVER_NAME exists: ${{ secrets.POSTGRES_SERVER_NAME != '' }}"
+          echo "POSTGRES_PASSWORD exists: ${{ secrets.POSTGRES_PASSWORD != '' }}"
+
+      - name: "Azure Login"
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: "Terraform Format Check"
+        working-directory: infra/development
+        run: |
+          terraform fmt -check -diff
+          if [ $? -ne 0 ]; then
+            echo "Terraform files are not properly formatted"
+            echo "Run 'terraform fmt -recursive' to fix formatting"
+            exit 1
+          fi
+
+      - name: "Terraform Init"
+        working-directory: infra/development
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=development.tfstate"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: true
+
+      - name: "Terraform Validate"
+        working-directory: infra/development
+        run: terraform validate
+
+      - name: "Create Terraform Variables"
+        working-directory: infra/development
+        run: |
+          cat > terraform.auto.tfvars << EOF
+          app_name    = "quoteapp"
+          environment = "development"
+          location    = "West Europe"
+
+          app_service_sku = "B2"
+          node_version    = "20-lts"
+
+          postgres_server_name           = "${{ secrets.POSTGRES_SERVER_NAME }}"
+          postgres_resource_group_name   = "${{ secrets.POSTGRES_RESOURCE_GROUP }}"
+          postgres_database_name         = "${{ secrets.POSTGRES_DATABASE }}"
+          postgres_admin_username        = "${{ secrets.POSTGRES_USERNAME }}"
+
+          EOF
+
+      - name: "Terraform Plan"
+        id: plan
+        working-directory: infra/development
+        run: |
+          terraform plan \
+            -var="postgres_admin_password=${{ secrets.POSTGRES_PASSWORD }}" \
+            -out=tfplan.out \
+            -detailed-exitcode
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: true
+        continue-on-error: true
+
+      - name: "Generate Plan Summary"
+        if: steps.plan.outputs.exitcode != '1'
+        working-directory: infra/development
+        run: |
+          terraform show -no-color tfplan.out > tfplan.txt
+
+          echo "## 🏗️ Terraform Plan Summary" > plan-summary.md
+          echo "" >> plan-summary.md
+
+          if [ ${{ steps.plan.outputs.exitcode }} -eq 0 ]; then
+            echo "**No changes detected**" >> plan-summary.md
+          elif [ ${{ steps.plan.outputs.exitcode }} -eq 2 ]; then
+            echo "**Changes detected and planned**" >> plan-summary.md
+            echo "" >> plan-summary.md
+            echo "<details><summary>🔍 View Terraform Plan</summary>" >> plan-summary.md
+            echo "" >> plan-summary.md
+            echo '```terraform' >> plan-summary.md
+            head -n 100 tfplan.txt >> plan-summary.md
+            echo '```' >> plan-summary.md
+            echo "</details>" >> plan-summary.md
+          fi
+
+          echo "" >> plan-summary.md
+          echo "**Plan generated at:** $(date)" >> plan-summary.md
+
+      - name: "Terraform Apply"
+        if: |
+          (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
+        id: apply
+        working-directory: infra/development
+        run: |
+          terraform apply -auto-approve tfplan.out
+
+          # Get outputs
+          APP_URL=$(terraform output -raw app_service_url 2>/dev/null || echo "")
+          APP_NAME=$(terraform output -raw app_service_name 2>/dev/null || echo "")
+          RG_NAME=$(terraform output -raw resource_group_name 2>/dev/null || echo "")
+
+          echo "app_url=$APP_URL" >> $GITHUB_OUTPUT
+          echo "app_name=$APP_NAME" >> $GITHUB_OUTPUT
+          echo "resource_group=$RG_NAME" >> $GITHUB_OUTPUT
+
+          echo "🚀 Infrastructure deployment completed!"
+          echo "App Service: $APP_NAME"
+          echo "Resource Group: $RG_NAME"
+          echo "URL: $APP_URL"
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: true
