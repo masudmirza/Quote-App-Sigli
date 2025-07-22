@@ -10,10 +10,9 @@ const configSchema = z.object({
   POSTGRES_USER: z.string().min(1),
   POSTGRES_PASSWORD: z.string().min(1),
   POSTGRES_DB: z.string().min(1),
-  REDIS_HOST: z.string().min(1),
-  REDIS_PORT: z.coerce.number().default(6379),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().min(10),
+  QUOTE_API_URL: z.string(),
 });
 
 export const config = configSchema.parse(process.env);

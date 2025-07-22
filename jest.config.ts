@@ -1,7 +1,6 @@
-const { createDefaultPreset } = require("ts-jest");
+import type { JestConfigWithTsJest } from "ts-jest";
 
-/** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
+const config: JestConfigWithTsJest = {
   preset: "ts-jest",
   testEnvironment: "node",
   moduleFileExtensions: ["ts", "js", "json"],
@@ -10,3 +9,5 @@ module.exports = {
   clearMocks: true,
   setupFilesAfterEnv: [],
 };
+
+export default config;

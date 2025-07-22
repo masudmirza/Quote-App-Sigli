@@ -1,16 +1,15 @@
 import { Service } from "typedi";
-import { DataSource, SelectQueryBuilder } from "typeorm";
+import { DataSource } from "typeorm";
 import { DbContext } from "../database/db-context";
-import { BadRequestError, NotFoundError } from "../utils/errors";
 import { CatalogItem } from "../enums/catalog-item.enum";
 import {
-  ConnectionArgs,
-  getPagingParameters,
   Connection,
+  ConnectionArgs,
   getConnectionFromArray,
+  getPagingParameters,
 } from "../graphql/relay";
 import { QuoteNode } from "../graphql/types/quote/quote.type";
-import { QuoteEntity } from "../database/entities/quote.entity";
+import { BadRequestError, NotFoundError } from "../utils/errors";
 
 @Service()
 export class UserService {

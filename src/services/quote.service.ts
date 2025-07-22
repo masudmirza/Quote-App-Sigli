@@ -16,6 +16,7 @@ import {
 } from "../graphql/relay";
 import { plainToInstance } from "class-transformer";
 import { QuoteResponse, QuoteResponseDto } from "../dtos/quote.dto";
+import { config } from "../config";
 
 @Service()
 export class QuoteService {
@@ -25,7 +26,7 @@ export class QuoteService {
   ) {}
 
   async getRandomQuote(): Promise<QuoteResponse> {
-    const response = await axios.get("https://dummyjson.com/quotes/random");
+    const response = await axios.get(`${config.QUOTE_API_URL}/random`);
     const { id, quote, author } = response.data;
 
     const queryRunner = this.dataSource.createQueryRunner();
