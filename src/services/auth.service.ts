@@ -1,9 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Service } from "typedi";
-import { DbContext } from "../database/db-context";
-import { BadRequestError, CustomError } from "../utils/errors";
 import { config } from "../config";
+import { DbContext } from "../database/db-context";
 import {
   SigninRequest,
   SigninResponse,
@@ -12,25 +11,40 @@ import {
   SignupResponse,
   SignupResponseDto,
 } from "../dtos/auth.dto";
+import { BadRequestError, CustomError } from "../utils/errors";
+import { DataSource } from "typeorm";
 
 @Service()
 export class AuthService {
-  constructor(private readonly dbContext: DbContext) {}
+  constructor(
+    private readonly dbContext: DbContext,
+    private readonly dataSource: DataSource,
+  ) {}
 
   async signup({ username, password }: SignupRequest): Promise<SignupResponse> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const exists = await this.dbContext.users.findOneBy({ username });
+      const userRepo = queryRunner.manager.getRepository(this.dbContext.users.target);
+
+      const exists = await userRepo.findOneBy({ username });
       if (exists) throw new BadRequestError("Username already taken");
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = this.dbContext.users.create({ username, password: hashedPassword });
-      await this.dbContext.users.save(user);
 
-      return SignupResponseDto.parse(user);
+      const user = userRepo.create({ username, password: hashedPassword });
+      const savedUser = await userRepo.save(user);
+
+      await queryRunner.commitTransaction();
+
+      return SignupResponseDto.parse(savedUser);
     } catch (error: any) {
-      console.log("error ", error);
-
+      await queryRunner.rollbackTransaction();
       throw new CustomError(error.statusCode || 500, error.errorCode);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -42,7 +56,11 @@ export class AuthService {
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) throw new BadRequestError("Invalid credentials");
 
-      const token = this.generateToken({ userId: user.id, username: user.username });
+      const token = this.generateToken({
+        userId: user.id,
+        username: user.username,
+        isAdmin: user.isAdmin,
+      });
 
       return SigninResponseDto.parse({ username: user.username, token });
     } catch (error: any) {
@@ -50,8 +68,16 @@ export class AuthService {
     }
   }
 
-  private generateToken({ userId, username }: { userId: string; username: string }) {
-    return jwt.sign({ userId, username }, config.JWT_SECRET, {
+  private generateToken({
+    userId,
+    username,
+    isAdmin,
+  }: {
+    userId: string;
+    username: string;
+    isAdmin: boolean;
+  }) {
+    return jwt.sign({ userId, username, isAdmin }, config.JWT_SECRET, {
       expiresIn: "7d",
     });
   }

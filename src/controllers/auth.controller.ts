@@ -1,8 +1,8 @@
 import { Service } from "typedi";
 import { SigninRequestDto, SignupRequestDto } from "../dtos/auth.dto";
 import { handleError } from "../helpers/handle-error";
-import { AuthService } from "../services/auth.service";
 import { CustomResponse } from "../utils/response";
+import { AuthService } from "../services/auth.service";
 
 @Service()
 export class AuthController {

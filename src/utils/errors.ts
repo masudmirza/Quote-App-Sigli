@@ -22,6 +22,18 @@ export class NotFoundError extends CustomError {
   }
 }
 
+export class UnauthorizedError extends CustomError {
+  constructor(errorCode: string) {
+    super(401, errorCode);
+  }
+}
+
+export class ForbiddenError extends CustomError {
+  constructor(errorCode: string) {
+    super(403, errorCode);
+  }
+}
+
 export class InternalServerError extends CustomError {
   constructor(errorCode: string) {
     super(500, errorCode);

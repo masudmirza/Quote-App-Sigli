@@ -1,11 +1,18 @@
 import "reflect-metadata";
+import accepts from "@fastify/accepts";
 import Fastify from "fastify";
-import { config } from "./config";
-import { DataSource as TypeOrmDataSource } from "typeorm";
-import { AppDataSource } from "./database/connection";
-import { logger } from "./utils/logger";
-import { AppRoutes } from "./routes/index.route";
 import Container from "typedi";
+import { DataSource as TypeOrmDataSource } from "typeorm";
+import { config } from "./config";
+import { AppDataSource } from "./database/connection";
+import { SeederService } from "./database/services/seeder.service";
+import { AppRoutes } from "./routes/index.route";
+import { logger } from "./utils/logger";
+import { ApolloServer } from "@apollo/server";
+import { fastifyApolloHandler } from "@as-integrations/fastify";
+import { CatalogItemResolver } from "./graphql/resolvers/catalog-item.resolver";
+import { buildSchema } from "type-graphql";
+import cors from "@fastify/cors";
 
 export async function bootstrap() {
   const app = Fastify({ logger: true });
@@ -13,6 +20,11 @@ export async function bootstrap() {
   //     host: config.REDIS_HOST,
   //     port: config.REDIS_PORT,
   //   });
+  await app.register(cors, {
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
+  });
+  app.register(accepts);
 
   let isShuttingDown = false;
 
@@ -20,8 +32,10 @@ export async function bootstrap() {
 
   try {
     await AppDataSource.initialize();
+
     Container.set(TypeOrmDataSource, AppDataSource);
-    logger.info("PostgreSQL connected 🎉");
+    const seederService = Container.get(SeederService);
+    await seederService.runAll();
   } catch (err) {
     logger.error({ err }, "Failed to connect to database");
     process.exit(1);
@@ -29,6 +43,31 @@ export async function bootstrap() {
 
   const appRoutes = Container.get(AppRoutes);
   appRoutes.registerAll(app);
+
+  const schema = await buildSchema({
+    resolvers: [CatalogItemResolver],
+    container: Container,
+  });
+
+  const server = new ApolloServer({
+    schema,
+    introspection: true,
+  });
+
+  // start server
+  await server.start().then(() => {
+    logger.info(
+      `🚀 Apollo Server started on http://localhost:${config.HTTP_PORT}/graphql`,
+    );
+  });
+
+  app.route({
+    method: ["GET", "POST", "OPTIONS"],
+    url: "/graphql",
+    handler: fastifyApolloHandler(server, {
+      context: async (req, reply) => ({ req, reply }),
+    }),
+  });
 
   const closeGracefully = async (signal: string) => {
     if (isShuttingDown) return;
