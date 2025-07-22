@@ -3,7 +3,6 @@ import { config } from "../config";
 import { CatalogItemEntity } from "./entities/catalog-item.entity";
 import { LikeEntity } from "./entities/like.entity";
 import { QuoteEntity } from "./entities/quote.entity";
-import { TrendingQuoteEntity } from "./entities/trending-quotes";
 import { UserEntity } from "./entities/user.entity";
 
 export const AppDataSource = new DataSource({
@@ -13,7 +12,7 @@ export const AppDataSource = new DataSource({
   username: config.POSTGRES_USER,
   password: config.POSTGRES_PASSWORD,
   database: config.POSTGRES_DB,
-  entities: [UserEntity, QuoteEntity, LikeEntity, CatalogItemEntity, TrendingQuoteEntity],
+  entities: [UserEntity, QuoteEntity, LikeEntity, CatalogItemEntity],
   migrations: ["src/database/migrations/*.ts"],
   synchronize: false,
   logging: true,

@@ -13,13 +13,12 @@ import { fastifyApolloHandler } from "@as-integrations/fastify";
 import { CatalogItemResolver } from "./graphql/resolvers/catalog-item.resolver";
 import { buildSchema } from "type-graphql";
 import cors from "@fastify/cors";
+import { QuoteResolver } from "./graphql/resolvers/quote.resolver";
+import { UserResolver } from "./graphql/resolvers/user.resolver";
 
 export async function bootstrap() {
   const app = Fastify({ logger: true });
-  //   const redis = new Redis({
-  //     host: config.REDIS_HOST,
-  //     port: config.REDIS_PORT,
-  //   });
+
   await app.register(cors, {
     origin: "*",
     methods: ["GET", "POST", "OPTIONS"],
@@ -45,7 +44,7 @@ export async function bootstrap() {
   appRoutes.registerAll(app);
 
   const schema = await buildSchema({
-    resolvers: [CatalogItemResolver],
+    resolvers: [CatalogItemResolver, QuoteResolver, UserResolver],
     container: Container,
   });
 
@@ -83,9 +82,6 @@ export async function bootstrap() {
         await AppDataSource.destroy();
         logger.info("PostgreSQL connection closed");
       }
-
-      //   await redis.quit();
-      //   logger.info("Redis connection closed");
 
       process.exit(0);
     } catch (err) {

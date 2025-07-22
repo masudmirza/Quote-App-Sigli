@@ -3,12 +3,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryColumn,
 } from "typeorm";
 import { ulid } from "ulid";
 import { IAuditableEntity } from "../interfaces/auditable-entity.interface";
 import { LikeEntity } from "./like.entity";
+import { CatalogItemEntity } from "./catalog-item.entity";
 
 @Entity({ name: "users" })
 export class UserEntity implements IAuditableEntity {
@@ -31,6 +34,13 @@ export class UserEntity implements IAuditableEntity {
 
   @OneToMany(() => LikeEntity, (like) => like.user)
   likes!: LikeEntity[];
+
+  @ManyToOne(() => CatalogItemEntity, { nullable: true, eager: true })
+  @JoinColumn({ name: "last_mood_selection_id" })
+  lastMoodSelection?: CatalogItemEntity;
+
+  @Column({ type: "timestamp with time zone", nullable: true })
+  lastMoodSelectionAt?: Date;
 
   @CreateDateColumn({ name: "created_at", type: "timestamp with time zone" })
   createdAt!: Date;

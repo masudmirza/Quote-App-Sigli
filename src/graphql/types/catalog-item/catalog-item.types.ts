@@ -1,5 +1,6 @@
 import { Field, ObjectType, ID, InputType } from "type-graphql";
 import { CatalogItem } from "../../../enums/catalog-item.enum";
+import { PageInfo } from "../quote/quote.type";
 
 @InputType()
 export class CatalogItemWhereInput {
@@ -38,15 +39,6 @@ export class CatalogItemNode {
 
   @Field()
   updatedAt!: Date;
-}
-
-@ObjectType()
-class PageInfo {
-  @Field()
-  hasNextPage!: boolean;
-
-  @Field()
-  hasPreviousPage!: boolean;
 }
 
 @ObjectType()
