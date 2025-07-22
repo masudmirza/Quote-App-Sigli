@@ -65,7 +65,7 @@ export async function bootstrap() {
     method: ["GET", "POST", "OPTIONS"],
     url: "/graphql",
     handler: fastifyApolloHandler(server, {
-      context: async (req, reply) => ({ req, reply }),
+      context: async (req, reply) => ({ request: req, reply }),
     }),
   });
 
