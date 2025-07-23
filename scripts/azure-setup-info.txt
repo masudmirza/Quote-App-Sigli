@@ -1,18 +1,23 @@
-Azure Setup Complete - Wed 23 Jul 2025 01:46:51 CEST
+Azure Setup Complete - Wed 23 Jul 2025 11:18:51 CEST
 ============================
 
 Project: quoteapp
-GitHub Repo: masudmirza/quote-app-sigli
+GitHub Repo: masudmirza/Quote-App-Sigli
 
 Azure Resources:
 - Subscription ID: 9e673709-e29a-4c53-b014-9bb9c083e232  
 - Tenant ID: 0ef1ad81-08a5-4edf-96be-80b54a02fba0
 - Resource Group: rg-quoteapp-tfstate
 - Storage Account: quoteapptfs1753203539
-- Service Principal ID: ce71edec-d584-4e54-874d-8bf4722b2b3a
+- Service Principal ID: da8b71a9-8cf0-4feb-99a6-4a054fdb321e
 
 Next Steps:
 1. Add the GitHub secrets shown above
 2. Create GitHub environment: 'development'  
 3. Update Terraform variables with your database info
 4. Commit and push your code
+
+
+
+      #   run: terraform force-unlock -force 6dc525e2-ebb7-fbb7-21ec-555267a2d6d7|| echo "No lock or already unlocked"
+# bu errorda bu commanddan istifade edirdim

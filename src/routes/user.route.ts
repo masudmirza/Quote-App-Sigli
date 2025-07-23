@@ -12,7 +12,7 @@ export class UserRoute {
       async (userApp) => {
         userApp.addHook("onRequest", isAuth);
 
-        userApp.post(
+        userApp.put(
           "/mood/select",
           this.userController.selectMood.bind(this.userController),
         );

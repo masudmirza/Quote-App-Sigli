@@ -9,7 +9,7 @@ echo "Starting Azure setup for development environment..."
 # Configuration - UPDATE THESE VALUES
 export PROJECT_NAME="quoteapp"             
 export GITHUB_REPO_OWNER="masudmirza"          
-export GITHUB_REPO_NAME="quote-app-sigli"       
+export GITHUB_REPO_NAME="Quote-App-Sigli"       
 export LOCATION="francecentral" 
 
 # Derived values

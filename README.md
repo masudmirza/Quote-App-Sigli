@@ -104,7 +104,7 @@ Quotable.io service is closed to the public, so I used the DummyJSON service ins
 
 | Method | Endpoint                    | Description        |
 | ------ | --------------------------- | ------------------ |
-| POST   | `/api/v1/users/mood/select` | Select daily mood. |
+| PUT    | `/api/v1/users/mood/select` | Select daily mood. |
 
 ---
 
