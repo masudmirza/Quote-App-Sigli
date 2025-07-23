@@ -60,6 +60,8 @@ jobs:
           POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          QUOTE_API_URL: ${{ secrets.QUOTE_API_URL }}
 
       - name: "Prepare Deployment Package"
         working-directory: .
