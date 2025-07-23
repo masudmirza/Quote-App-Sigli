@@ -16,4 +16,10 @@ export const AppDataSource = new DataSource({
   migrations: ["src/database/migrations/*.ts"],
   synchronize: false,
   logging: true,
+  ssl: {
+    rejectUnauthorized: false, // Azure uses self-signed certs
+    ca: undefined,
+    key: undefined,
+    cert: undefined,
+  },
 });
