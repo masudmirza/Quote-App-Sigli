@@ -31,7 +31,7 @@ jobs:
       - name: "Install Dependencies"
         working-directory: .
         run: |
-          npm ci
+          npm ci --force
           echo "Dependencies installed"
 
       - name: "Build TypeScript"
