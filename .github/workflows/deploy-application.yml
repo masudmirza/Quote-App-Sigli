@@ -91,7 +91,7 @@ jobs:
 
           # Create zip from deploy directory
           cd deploy
-          zip -r ../../deploy.zip . -x "*.ts" "tsconfig.json"
+          zip -r ../deploy.zip . -x "*.ts" "tsconfig.json"
           cd ..
 
           echo "Deployment package ready"
