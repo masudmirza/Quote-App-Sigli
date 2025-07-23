@@ -57,7 +57,7 @@ export async function bootstrap() {
 
   await server.start().then(() => {
     logger.info(
-      `🚀 Apollo Server started on http://localhost:${config.HTTP_PORT}/graphql`,
+      `🚀 Apollo Server started on http://0.0.0.0:${config.HTTP_PORT}/graphql`,
     );
   });
 
@@ -104,7 +104,7 @@ export async function bootstrap() {
 
   try {
     await app.listen({ port: config.HTTP_PORT });
-    logger.info(`🚀 Server listening on http://localhost:${config.HTTP_PORT}`);
+    logger.info(`🚀 Server listening on http://0.0.0.0:${config.HTTP_PORT}`);
   } catch (err) {
     logger.error({ err }, "Failed to start server");
     process.exit(1);
