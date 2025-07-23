@@ -50,7 +50,7 @@ jobs:
           fi
 
       - name: "Prepare Deployment Package"
-        working-directory: app
+        working-directory: .
         run: |
           echo "Creating deployment package..."
 
