@@ -49,6 +49,18 @@ jobs:
             exit 1
           fi
 
+      - name: "Run TypeORM Migrations" 
+        run: |
+          echo "Running TypeORM database migrations..."
+          yarn migration:run
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_USERNAME: ${{ secrets.POSTGRES_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
+
       - name: "Prepare Deployment Package"
         working-directory: .
         run: |
