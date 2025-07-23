@@ -1,6 +1,5 @@
 # Quote-App
 
-Quote-App  
 A modern API service for managing inspirational quotes that supports both REST and GraphQL endpoints. Features include user authentication, likes, moods, tags, and flexible querying capabilities.
 
 The REST API provides traditional endpoints for common operations, while the GraphQL API supports advanced querying with cursor-based pagination for efficient navigation of large datasets.
@@ -25,14 +24,8 @@ The REST API provides traditional endpoints for common operations, while the Gra
 - [Business Overview](#business-overview)
 - [Technology Stack](#technology-stack)
 - [Architecture & Design Patterns](#architecture--design-patterns)
-- [Setup & Run](#setup--run)
-- [Database & Migrations](#database--migrations)
 - [API Endpoints](#api-endpoints)
-- [Testing](#testing)
-- [Error Handling](#error-handling)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+- [Deployment](#deployment)
 
 ---
 
@@ -47,6 +40,8 @@ Quote-App provides an API backend for serving motivational and inspirational quo
 - Administrative management of tags and catalog items
 
 The system is designed to offer flexible querying, robust error handling, and maintainable code using clean architecture principles.
+
+Quotable.io service is closed to the public, so I used the DummyJSON service instead. However, since it doesn’t provide tags, I add random tags. Although some tags may not logically fit, I included them to keep the functionality working.
 
 ---
 
@@ -77,18 +72,61 @@ The system is designed to offer flexible querying, robust error handling, and ma
 
 ---
 
-## Setup & Run
+## API Endpoints
 
-### Prerequisites
+### Authentication Routes
 
-- Node.js (>=16) and Yarn or npm
-- PostgreSQL database
-- Environment variables (see `.env.example`)
+| Method | Endpoint              | Description             |
+| ------ | --------------------- | ----------------------- |
+| POST   | `/api/v1/auth/signup` | Register a new user     |
+| POST   | `/api/v1/auth/signin` | Login and get JWT token |
 
-### Installation
+---
 
-```bash
-git clone <repo-url>
-cd Quote-App-v2
-yarn install
-```
+### Quotes Routes
+
+| Method | Endpoint                  | Description                   |
+| ------ | ------------------------- | ----------------------------- |
+| GET    | `/api/v1/quotes/random`   | Get a random quote            |
+| POST   | `/api/v1/quotes/:id/like` | Toggle like/unlike on a quote |
+
+---
+
+### Catalog Items Routes (Tags, Moods)
+
+| Method | Endpoint                    | Description               |
+| ------ | --------------------------- | ------------------------- |
+| POST   | `/api/v1/catalog-items`     | Create a new catalog item |
+| PUT    | `/api/v1/catalog-items/:id` | Update catalog item       |
+| DELETE | `/api/v1/catalog-items/:id` | Delete catalog item       |
+
+### Users Routes
+
+| Method | Endpoint                    | Description        |
+| ------ | --------------------------- | ------------------ |
+| POST   | `/api/v1/users/mood/select` | Select daily mood. |
+
+---
+
+## GraphQL Sandbox Playground
+
+Access the interactive GraphQL playground at:
+
+[https://app-quoteapp-development.azurewebsites.net/graphql](https://app-quoteapp-development.azurewebsites.net/graphql)
+
+You can use this interface to explore the schema, run queries, mutations, and test cursor-based pagination.|
+
+---
+
+## Deployment
+
+Quote-App is designed for deployment on Microsoft Azure using Terraform and Azure services.
+Before the first deployment, the Azure setup script (azure-setup.sh) must be run to provision all necessary Azure resources.
+After the initial setup, any changes merged into the main branch will automatically trigger the CI/CD pipeline to deploy the updated application.
+
+### Key Azure Resources
+
+- Azure App Service for hosting the API
+- Azure PostgreSQL for database
+- Azure Storage Account for Terraform state
+- Azure Service Principal for automation and permissions
