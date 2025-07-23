@@ -13,8 +13,8 @@
     "watch": "tsc -w",
     "dev": "yarn clean && yarn build && concurrently \"yarn watch\" \"nodemon src/index.ts\"",
     "typeorm-cli": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js",
-    "migration:generate": "yarn typeorm-cli migration:generate",
-    "migration:run": "yarn typeorm-cli migration:run"
+    "migration:generate": "npm run typeorm-cli -- migration:generate --dataSource src/database/connection.ts -n",
+    "migration:run": "npm run typeorm-cli -- migration:run --dataSource src/database/connection.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",
