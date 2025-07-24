@@ -39,6 +39,7 @@ jobs:
     env:
       TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
       TF_VAR_quote_api_url: ${{ secrets.QUOTE_API_URL }}
+      TF_VAR_http_port: ${{ secrets.HTTP_PORT }}
     environment: development
 
     steps:
