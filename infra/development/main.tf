@@ -41,6 +41,7 @@ module "app_service" {
   location            = azurerm_resource_group.main.location
   sku_name            = var.app_service_sku
   node_version        = var.node_version
+  postgres_host       = var.postgres_host
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
