@@ -66,3 +66,8 @@ variable "quote_api_url" {
   description = "URL for the external quote API"
   type        = string
 }
+
+variable "http_port" {
+  description = "HTTP PORT"
+  type        = string
+}
