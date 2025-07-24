@@ -129,11 +129,3 @@ jobs:
             --src deploy.zip
 
           echo "Deployment completed"
-
-      - name: "Wait for Deployment"
-        run: |
-          echo "Waiting for deployment to complete..."
-          sleep 60
-          echo "Health check failed after 10 attempts"
-          echo "Check logs: az webapp log tail --name app-quoteapp-development --resource-group rg-quoteapp-development"
-          exit 1
