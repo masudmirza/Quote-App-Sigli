@@ -49,7 +49,7 @@ module "app_service" {
     "WEBSITE_NODE_DEFAULT_VERSION"        = var.node_version
 
     # Database connection
-    "DATABASE_URL"      = var.database_url
+    "DATABASE_URL"      = local.database_url
     "POSTGRES_HOST"     = data.azurerm_postgresql_flexible_server.existing_postgres.fqdn
     "POSTGRES_PORT"     = "5432"
     "POSTGRES_USERNAME" = var.postgres_admin_username
