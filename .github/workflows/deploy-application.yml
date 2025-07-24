@@ -76,7 +76,7 @@ jobs:
           cp -r dist/ deploy/
           cp package.json deploy/
           cp package-lock.json deploy/ 2>/dev/null || echo "No package-lock.json"
-          cp node_modules/ deploy/
+          cp -r node_modules/ deploy/
 
           # Create web.config for Azure
           cat > deploy/web.config << 'EOF'
