@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const configSchema = z.object({
-  HTTP_PORT: z.coerce.number().default(3000),
+  HTTP_PORT: z.coerce.number().default(8000),
   POSTGRES_HOST: z.string().min(1),
   POSTGRES_PORT: z.coerce.number().default(5432),
   POSTGRES_USERNAME: z.string().min(1),
