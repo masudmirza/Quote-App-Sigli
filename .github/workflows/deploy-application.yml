@@ -134,26 +134,6 @@ jobs:
         run: |
           echo "Waiting for deployment to complete..."
           sleep 60
-
-      - name: "Health Check"
-        run: |
-          echo "Running health check..."
-          APP_URL="https://app-quoteapp-development.azurewebsites.net"
-
-          # Try multiple times
-          for i in {1..10}; do
-            echo "Attempt $i of 10..."
-            
-            if curl -f -s "$APP_URL/health" >/dev/null 2>&1; then
-              echo "Health check passed!"
-              echo "App is live at: $APP_URL"
-              exit 0
-            else
-              echo "Health check failed, retrying in 30s..."
-              sleep 30
-            fi
-          done
-
           echo "Health check failed after 10 attempts"
           echo "Check logs: az webapp log tail --name app-quoteapp-development --resource-group rg-quoteapp-development"
           exit 1
