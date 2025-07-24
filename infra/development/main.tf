@@ -45,7 +45,7 @@ module "app_service" {
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
     "NODE_ENV"                            = "production"
-    "PORT"                                = var.HTTP_PORT
+    "PORT"                                = "8000"
     "WEBSITE_NODE_DEFAULT_VERSION"        = var.node_version
 
     # Database connection
