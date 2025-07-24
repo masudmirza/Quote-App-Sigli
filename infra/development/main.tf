@@ -57,6 +57,7 @@ module "app_service" {
     "POSTGRES_PASSWORD" = var.postgres_admin_password
     "JWT_SECRET"        = var.jwt_secret
     "QUOTE_API_URL"     = var.quote_api_url
+    "HTTP_PORT"         = var.http_port
   }
 
   connection_strings = [
