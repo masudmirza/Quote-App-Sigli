@@ -114,7 +114,7 @@ Access the interactive GraphQL playground at:
 
 [https://app-quoteapp-development.azurewebsites.net/graphql](https://app-quoteapp-development.azurewebsites.net/graphql)
 
-You can use this interface to explore the schema, run queries, mutations, and test cursor-based pagination.|
+You can use this interface to explore the schema, run queries and test cursor-based pagination.
 
 ---
 
@@ -123,6 +123,7 @@ You can use this interface to explore the schema, run queries, mutations, and te
 Quote-App is designed for deployment on Microsoft Azure using Terraform and Azure services.
 Before the first deployment, the Azure setup script (azure-setup.sh) must be run to provision all necessary Azure resources.
 After the initial setup, any changes merged into the main branch will automatically trigger the CI/CD pipeline to deploy the updated application.
+Application URL: [https://app-quoteapp-development.azurewebsites.net](https://app-quoteapp-development.azurewebsites.net)
 
 ### Key Azure Resources
 
