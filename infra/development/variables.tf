@@ -54,3 +54,15 @@ variable "postgres_admin_password" {
   type        = string
   sensitive   = true
 }
+
+
+variable "jwt_secret" {
+  description = "Secret key for JWT token signing"
+  type        = string
+  sensitive   = true
+}
+
+variable "quote_api_url" {
+  description = "URL for the external quote API"
+  type        = string
+}
