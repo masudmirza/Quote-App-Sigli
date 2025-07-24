@@ -44,12 +44,13 @@ module "app_service" {
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
-    "NODE_ENV"                            = var.environment
-    "PORT"                                = "8000"
+    "NODE_ENV"                            = "production"
+    "PORT"                                = var.HTTP_PORT
     "WEBSITE_NODE_DEFAULT_VERSION"        = var.node_version
 
     # Database connection
-    "DATABASE_URL" = local.database_url
+    "DATABASE_URL" = var.database_url
+    "POSTGRES_HOST" = var.postgres_host
   }
 
   connection_strings = [
