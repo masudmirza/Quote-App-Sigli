@@ -103,7 +103,7 @@ export async function bootstrap() {
   });
 
   try {
-    await app.listen({ port: config.HTTP_PORT });
+    await app.listen({ host: "0.0.0.0", port: config.HTTP_PORT });
     logger.info(`🚀 Server listening on http://0.0.0.0:${config.HTTP_PORT}`);
   } catch (err) {
     logger.error({ err }, "Failed to start server");
