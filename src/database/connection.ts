@@ -13,7 +13,11 @@ export const AppDataSource = new DataSource({
   password: config.POSTGRES_PASSWORD,
   database: config.POSTGRES_DATABASE,
   entities: [UserEntity, QuoteEntity, LikeEntity, CatalogItemEntity],
-  migrations: ["src/database/migrations/*.ts"],
+  migrations: [
+    config.NODE_ENV === "production"
+      ? "dist/database/migrations/*.js"
+      : "src/database/migrations/*.ts",
+  ],
   synchronize: false,
   logging: true,
   ssl: {
