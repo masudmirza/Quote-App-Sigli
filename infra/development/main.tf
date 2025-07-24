@@ -49,7 +49,7 @@ module "app_service" {
     "WEBSITE_NODE_DEFAULT_VERSION"        = var.node_version
 
     # Database connection
-    "DATABASE_URL" = var.database_url
+    "DATABASE_URL"  = var.database_url
     "POSTGRES_HOST" = var.postgres_host
   }
 
