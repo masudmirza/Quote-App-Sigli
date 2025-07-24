@@ -52,7 +52,7 @@ jobs:
       - name: "Run TypeORM Migrations" 
         run: |
           echo "Running TypeORM database migrations..."
-          yarn migration:run
+          npm run migration:run:prod
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
@@ -62,6 +62,7 @@ jobs:
           POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           QUOTE_API_URL: ${{ secrets.QUOTE_API_URL }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
 
       - name: "Prepare Deployment Package"
         working-directory: .
