@@ -41,7 +41,6 @@ module "app_service" {
   location            = azurerm_resource_group.main.location
   sku_name            = var.app_service_sku
   node_version        = var.node_version
-  postgres_host       = var.postgres_host
 
   app_settings = {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
@@ -50,8 +49,12 @@ module "app_service" {
     "WEBSITE_NODE_DEFAULT_VERSION"        = var.node_version
 
     # Database connection
-    "DATABASE_URL"  = var.database_url
-    "POSTGRES_HOST" = var.postgres_host
+    "DATABASE_URL"      = var.database_url
+    "POSTGRES_HOST"     = data.azurerm_postgresql_flexible_server.existing_postgres.fqdn
+    "POSTGRES_PORT"     = "5432"
+    "POSTGRES_USERNAME" = var.postgres_admin_username
+    "POSTGRES_DATABASE" = var.postgres_database_name
+    "POSTGRES_PASSWORD" = var.postgres_admin_password
   }
 
   connection_strings = [
