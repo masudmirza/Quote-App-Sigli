@@ -13,6 +13,7 @@ const configSchema = z.object({
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().min(10),
   QUOTE_API_URL: z.string(),
+  NODE_ENV: z.enum(["development", "production"]).default("development"),
 });
 
 export const config = configSchema.parse(process.env);
