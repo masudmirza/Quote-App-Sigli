@@ -55,6 +55,8 @@ module "app_service" {
     "POSTGRES_USERNAME" = var.postgres_admin_username
     "POSTGRES_DATABASE" = var.postgres_database_name
     "POSTGRES_PASSWORD" = var.postgres_admin_password
+    "JWT_SECRET"        = var.jwt_secret
+    "QUOTE_API_URL"     = var.quote_api_url
   }
 
   connection_strings = [
