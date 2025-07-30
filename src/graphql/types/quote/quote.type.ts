@@ -26,8 +26,8 @@ export class QuoteNode {
   @Field()
   author!: string;
 
-  @Field()
-  likeCount!: number;
+  @Field({ nullable: true })
+  likeCount?: number;
 
   @Field()
   createdAt!: Date;
