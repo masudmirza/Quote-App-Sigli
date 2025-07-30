@@ -1,7 +1,21 @@
 import { z } from "zod";
 import dotenv from "dotenv";
+import { existsSync } from "fs";
 
-dotenv.config();
+const nodeEnv = process.env.NODE_ENV ?? "development";
+
+const envFileMap: Record<string, string> = {
+  development: ".env.dev",
+  production: ".env.prod",
+};
+
+const envPath = envFileMap[nodeEnv] ?? ".env";
+
+if (existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+} else {
+  dotenv.config();
+}
 
 const configSchema = z.object({
   HTTP_PORT: z.coerce.number().default(8000),
@@ -13,7 +27,7 @@ const configSchema = z.object({
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().min(10),
   QUOTE_API_URL: z.string(),
-  NODE_ENV: z.enum(["development", "production"]).default("development")
+  NODE_ENV: z.enum(["development", "production"]).default("development"),
 });
 
 export const config = configSchema.parse(process.env);
