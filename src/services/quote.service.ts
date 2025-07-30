@@ -69,12 +69,14 @@ export class QuoteService {
 
   async toggleLike(userId: string, quoteId: string): Promise<{ liked: boolean }> {
     const likeRepo = this.dbContext.likes;
+    const quoteRepo = this.dbContext.quotes;
     const existing = await likeRepo.findOne({
       where: { user: { id: userId }, quote: { id: quoteId } },
     });
 
     if (existing) {
       await likeRepo.remove(existing);
+      await quoteRepo.decrement({ id: quoteId }, "likeCount", 1);
       return { liked: false };
     }
 
@@ -84,6 +86,7 @@ export class QuoteService {
     });
 
     await likeRepo.save(like);
+    await quoteRepo.increment({ id: quoteId }, "likeCount", 1);
     return { liked: true };
   }
 
