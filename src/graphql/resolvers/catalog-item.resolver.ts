@@ -17,7 +17,7 @@ export class CatalogItemResolver {
     private readonly catalogItemLoader: CatalogItemLoader,
   ) {}
 
-  @UseMiddleware(isAuth, isAdmin)
+  @UseMiddleware(isAuth)
   @Query(() => CatalogItemConnection)
   async catalogItems(@Args() args: CatalogItemConnectionArgs) {
     return this.catalogItemService.findAllWithPagination(args);
