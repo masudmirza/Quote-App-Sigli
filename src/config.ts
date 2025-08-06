@@ -1,21 +1,18 @@
 import { z } from "zod";
 import dotenv from "dotenv";
-import { existsSync } from "fs";
+import path from "path";
 
-const nodeEnv = process.env.NODE_ENV ?? "development";
+const rawNodeEnv = process.env.NODE_ENV;
+const normalizedNodeEnv = rawNodeEnv === "production" ? "production" : "development";
 
 const envFileMap: Record<string, string> = {
   development: ".env.dev",
   production: ".env.prod",
 };
 
-const envPath = envFileMap[nodeEnv] ?? ".env";
+const envPath = path.resolve(process.cwd(), envFileMap[normalizedNodeEnv]);
 
-if (existsSync(envPath)) {
-  dotenv.config({ path: envPath });
-} else {
-  dotenv.config();
-}
+dotenv.config({ path: envPath });
 
 const configSchema = z.object({
   HTTP_PORT: z.coerce.number().default(8000),
@@ -30,4 +27,7 @@ const configSchema = z.object({
   NODE_ENV: z.enum(["development", "production"]).default("development"),
 });
 
-export const config = configSchema.parse(process.env);
+export const config = configSchema.parse({
+  ...process.env,
+  NODE_ENV: normalizedNodeEnv,
+});

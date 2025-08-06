@@ -44,12 +44,6 @@ export class QuoteService {
         relations: ["tags"],
       });
 
-      // let quoteEntity = await quoteRepo
-      //   .createQueryBuilder("quote")
-      //   .leftJoinAndSelect("quote.tags", "tag")
-      //   .where("quote.externalId = :externalId", { externalId: id })
-      //   .getOne();
-
       if (!quoteEntity) {
         quoteEntity = quoteRepo.create({ externalId: id, text: quote, author });
         const allTags = await catalogItemRepo.find({ where: { type: CatalogItem.TAG } });
@@ -61,15 +55,7 @@ export class QuoteService {
           where: { id: quoteEntity.id },
           relations: ["tags"],
         });
-
-        // quoteEntity = await quoteRepo
-        //   .createQueryBuilder("quote")
-        //   .leftJoinAndSelect("quote.tags", "tag")
-        //   .where("quote.externalId = :externalId", { externalId: id })
-        //   .getOne();
       }
-
-      console.log("quote ", quoteEntity);
 
       await queryRunner.commitTransaction();
       return QuoteResponseDto.parse(quoteEntity);
@@ -160,7 +146,7 @@ export class QuoteService {
     if (!where) return;
 
     if (where.quoteContains) {
-      queryBuilder.andWhere("quote.quote ILIKE :quoteContains", {
+      queryBuilder.andWhere("quote.text ILIKE :quoteContains", {
         quoteContains: `%${where.quoteContains}%`,
       });
     }
