@@ -1,6 +1,6 @@
 // graphql/types/quote.args.ts
 import { ArgsType, Field, Int } from "type-graphql";
-import { QuoteOrderBy } from "../../../enums/quote.enum";
+import { QuoteOrderBy } from "../../../domain/enums/quote.enum";
 import { QuoteWhereInput } from "./quote.type";
 
 @ArgsType()

@@ -1,16 +1,13 @@
-import { ObjectLiteral, FindManyOptions, SelectQueryBuilder } from "typeorm";
+import { Repository, FindManyOptions, SelectQueryBuilder, ObjectLiteral } from "typeorm";
 import {
   ClassType,
   Connection,
   ConnectionArgs,
   getConnectionFromArray,
   getPagingParameters,
-} from "../../../graphql/relay";
-import { BaseTreeRepository } from "./base-tree-repository";
+} from "../../graphql/relay";
 
-export class BaseRelayTreeRepository<
-  T extends ObjectLiteral,
-> extends BaseTreeRepository<T> {
+export class BaseRelayRepository<T extends ObjectLiteral> extends Repository<T> {
   async findAndPaginate<TNode extends T>(
     condition: FindManyOptions<T>,
     args: ConnectionArgs,
@@ -38,19 +35,5 @@ export class BaseRelayTreeRepository<
       .getManyAndCount();
 
     return getConnectionFromArray(entities, nodeCls, args, count) as Connection<TNode>;
-  }
-
-  async getMany<TNode extends T>(
-    queryBuilder: SelectQueryBuilder<T>,
-    nodeCls: ClassType<TNode>,
-  ): Promise<Connection<TNode>> {
-    const [entities, count] = await queryBuilder.getManyAndCount();
-
-    return getConnectionFromArray(
-      entities,
-      nodeCls,
-      { pageSize: count },
-      count,
-    ) as Connection<TNode>;
   }
 }

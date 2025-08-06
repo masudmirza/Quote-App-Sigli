@@ -23,6 +23,9 @@ export class QuoteEntity implements IAuditableEntity {
     this.id = ulid();
   }
 
+  @Column({ type: "int", name: "external_id", unique: true })
+  externalId!: number;
+
   @Column()
   text!: string;
 

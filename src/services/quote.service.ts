@@ -2,11 +2,11 @@ import axios from "axios";
 import { Service } from "typedi";
 import { DataSource, SelectQueryBuilder } from "typeorm";
 import { DbContext } from "../database/db-context";
-import { QuoteEntity } from "../database/entities/quote.entity";
-import { UserEntity } from "../database/entities/user.entity";
-import { CatalogItem } from "../enums/catalog-item.enum";
-import { CustomError } from "../utils/errors";
-import { QuoteOrderBy } from "../enums/quote.enum";
+import { QuoteEntity } from "../domain/entities/quote.entity";
+import { UserEntity } from "../domain/entities/user.entity";
+import { CatalogItem } from "../domain/enums/catalog-item.enum";
+import { BadRequestError, CustomError } from "../utils/errors";
+import { QuoteOrderBy } from "../domain/enums/quote.enum";
 import { QuoteNode, QuoteWhereInput } from "../graphql/types/quote/quote.type";
 import {
   Connection,
@@ -40,18 +40,36 @@ export class QuoteService {
       );
 
       let quoteEntity = await quoteRepo.findOne({
-        where: { id },
+        where: { externalId: id },
         relations: ["tags"],
       });
 
+      // let quoteEntity = await quoteRepo
+      //   .createQueryBuilder("quote")
+      //   .leftJoinAndSelect("quote.tags", "tag")
+      //   .where("quote.externalId = :externalId", { externalId: id })
+      //   .getOne();
+
       if (!quoteEntity) {
-        quoteEntity = quoteRepo.create({ id, text: quote, author });
+        quoteEntity = quoteRepo.create({ externalId: id, text: quote, author });
         const allTags = await catalogItemRepo.find({ where: { type: CatalogItem.TAG } });
         const shuffled = allTags.sort(() => 0.5 - Math.random());
         quoteEntity.tags = shuffled.slice(0, Math.floor(Math.random() * 3) + 1);
 
         await quoteRepo.save(quoteEntity);
+        quoteEntity = await quoteRepo.findOne({
+          where: { id: quoteEntity.id },
+          relations: ["tags"],
+        });
+
+        // quoteEntity = await quoteRepo
+        //   .createQueryBuilder("quote")
+        //   .leftJoinAndSelect("quote.tags", "tag")
+        //   .where("quote.externalId = :externalId", { externalId: id })
+        //   .getOne();
       }
+
+      console.log("quote ", quoteEntity);
 
       await queryRunner.commitTransaction();
       return QuoteResponseDto.parse(quoteEntity);

@@ -1,7 +1,7 @@
 import { DataSource, QueryRunner, Repository } from "typeorm";
 import { UserService } from "../user.service";
 import { DbContext } from "../../database/db-context";
-import { CatalogItem } from "../../enums/catalog-item.enum";
+import { CatalogItem } from "../../domain/enums/catalog-item.enum";
 import { BadRequestError, NotFoundError } from "../../utils/errors";
 
 describe("UserService", () => {

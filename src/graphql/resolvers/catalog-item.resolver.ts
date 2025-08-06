@@ -1,13 +1,13 @@
-import { Args, Query, Resolver, FieldResolver, Root, UseMiddleware } from "type-graphql";
+import { Args, FieldResolver, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { Service } from "typedi";
 import { CatalogItemService } from "../../services/catalog-item.service";
+import { CatalogItemLoader } from "../loaders/catalog-item.loader";
+import { isAuth } from "../middlewares/auth.middlewares";
+import { CatalogItemConnectionArgs } from "../types/catalog-item/catalog-item.args";
 import {
   CatalogItemConnection,
   CatalogItemNode,
 } from "../types/catalog-item/catalog-item.types";
-import { CatalogItemConnectionArgs } from "../types/catalog-item/catalog-item.args";
-import { CatalogItemLoader } from "../loaders/catalog-item.loader";
-import { isAdmin, isAuth } from "../middlewares/auth.middlewares";
 
 @Service()
 @Resolver(() => CatalogItemNode)

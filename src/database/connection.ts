@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
 import { config } from "../config";
-import { CatalogItemEntity } from "./entities/catalog-item.entity";
-import { LikeEntity } from "./entities/like.entity";
-import { QuoteEntity } from "./entities/quote.entity";
-import { UserEntity } from "./entities/user.entity";
+import { CatalogItemEntity } from "../domain/entities/catalog-item.entity";
+import { LikeEntity } from "../domain/entities/like.entity";
+import { QuoteEntity } from "../domain/entities/quote.entity";
+import { UserEntity } from "../domain/entities/user.entity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -19,7 +19,7 @@ export const AppDataSource = new DataSource({
       : "src/database/migrations/*.ts",
   ],
   synchronize: false,
-  logging: true,
+  logging: false,
   ssl: {
     rejectUnauthorized: false, // Azure uses self-signed certs
     ca: undefined,

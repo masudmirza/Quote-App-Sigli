@@ -2,6 +2,7 @@ import z from "zod";
 
 const QuoteTagDto = z.object({
   id: z.string().min(1),
+  name: z.string(),
 });
 
 export const QuoteResponseDto = z.object({

@@ -1,5 +1,5 @@
 import { DeleteResult, ObjectLiteral, TreeRepository } from "typeorm";
-import { InternalServerError } from "../../../utils/errors";
+import { InternalServerError } from "../../utils/errors";
 
 export class BaseTreeRepository<T extends ObjectLiteral> extends TreeRepository<T> {
   async delete(id: string): Promise<DeleteResult> {

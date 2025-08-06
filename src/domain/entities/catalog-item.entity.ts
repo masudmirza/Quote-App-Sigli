@@ -14,11 +14,9 @@ import {
 import { ulid } from "ulid";
 import { IEditableEntity } from "../interfaces/editable-entity.interface";
 import { ISoftDeletableEntity } from "../interfaces/soft-deletable-entity.interface";
-import { CatalogItem } from "../../enums/catalog-item.enum";
+import { CatalogItem } from "../enums/catalog-item.enum";
 
 @Entity({ name: "catalog_items" })
-@Unique(["name"])
-@Unique(["parentId", "name"])
 export class CatalogItemEntity implements IEditableEntity, ISoftDeletableEntity {
   @PrimaryColumn({ type: "varchar", length: 26 })
   id!: string;
@@ -40,6 +38,7 @@ export class CatalogItemEntity implements IEditableEntity, ISoftDeletableEntity 
   @ManyToOne(() => CatalogItemEntity, (item) => item.children, {
     nullable: true,
     onDelete: "CASCADE",
+    eager: false,
   })
   parent?: CatalogItemEntity;
 

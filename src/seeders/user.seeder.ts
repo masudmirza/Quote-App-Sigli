@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Service } from "typedi";
 import { DataSource } from "typeorm";
-import { DbContext } from "../db-context";
+import { DbContext } from "../database/db-context";
 
 @Service()
 export class UserSeeder {

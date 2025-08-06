@@ -2,7 +2,7 @@ import DataLoader from "dataloader";
 import { In } from "typeorm";
 import { Service } from "typedi";
 import { DbContext } from "../../database/db-context";
-import { CatalogItemEntity } from "../../database/entities/catalog-item.entity";
+import { CatalogItemEntity } from "../../domain/entities/catalog-item.entity";
 
 @Service()
 export class CatalogItemLoader {

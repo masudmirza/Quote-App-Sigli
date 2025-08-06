@@ -1,11 +1,11 @@
 import { Service } from "typedi";
 import { DataSource } from "typeorm";
 import { BaseRelayRepository } from "./base/base-relay.repository";
-import { UserEntity } from "../entities/user.entity";
+import { LikeEntity } from "../domain/entities/like.entity";
 
 @Service()
-export class UserRepository extends BaseRelayRepository<UserEntity> {
+export class LikeRepository extends BaseRelayRepository<LikeEntity> {
   constructor(dataSource: DataSource) {
-    super(UserEntity, dataSource.manager);
+    super(LikeEntity, dataSource.manager);
   }
 }

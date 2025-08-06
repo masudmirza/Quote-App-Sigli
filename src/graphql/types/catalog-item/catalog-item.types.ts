@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID, InputType } from "type-graphql";
-import { CatalogItem } from "../../../enums/catalog-item.enum";
+import { CatalogItem } from "../../../domain/enums/catalog-item.enum";
 import { PageInfo } from "../quote/quote.type";
 
 @InputType()

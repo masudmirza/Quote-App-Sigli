@@ -28,6 +28,8 @@ const configSchema = z.object({
   JWT_SECRET: z.string().min(10),
   QUOTE_API_URL: z.string(),
   NODE_ENV: z.enum(["development", "production"]).default("development"),
+  ADMIN_USERNAME: z.string(),
+  ADMIN_PASSWORD: z.string(),
 });
 
 export const config = configSchema.parse(process.env);

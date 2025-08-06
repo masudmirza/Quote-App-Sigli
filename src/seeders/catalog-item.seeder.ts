@@ -1,8 +1,7 @@
 import { Service } from "typedi";
-import { DataSource } from "typeorm";
-import { CatalogItem } from "../../enums/catalog-item.enum";
-import { DbContext } from "../db-context";
-import { CatalogItemEntity } from "../entities/catalog-item.entity";
+import { DataSource, IsNull, Not } from "typeorm";
+import { CatalogItem } from "../domain/enums/catalog-item.enum";
+import { DbContext } from "../database/db-context";
 
 @Service()
 export class CatalogItemSeeder {
@@ -28,9 +27,13 @@ export class CatalogItemSeeder {
       };
 
       for (const [moodName, tags] of Object.entries(moodToTags)) {
-        let mood = await catalogRepo.findOneBy({
-          name: moodName,
-          type: CatalogItem.MOOD,
+        let mood = await catalogRepo.findOne({
+          where: {
+            name: moodName,
+            type: CatalogItem.MOOD,
+            deletedAt: Not(IsNull()),
+          },
+          withDeleted: true,
         });
 
         if (!mood) {
@@ -42,10 +45,14 @@ export class CatalogItemSeeder {
         }
 
         for (const tagName of tags) {
-          const existingTag = await catalogRepo.findOneBy({
-            name: tagName,
-            type: CatalogItem.TAG,
-            parentId: mood.id,
+          const existingTag = await catalogRepo.findOne({
+            where: {
+              name: tagName,
+              type: CatalogItem.TAG,
+              parentId: mood.id,
+              deletedAt: Not(IsNull()),
+            },
+            withDeleted: true,
           });
 
           if (!existingTag) {

@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { DataSource } from "typeorm";
 import { DbContext } from "../database/db-context";
-import { CatalogItem } from "../enums/catalog-item.enum";
+import { CatalogItem } from "../domain/enums/catalog-item.enum";
 import {
   Connection,
   ConnectionArgs,

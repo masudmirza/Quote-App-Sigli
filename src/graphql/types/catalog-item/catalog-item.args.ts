@@ -1,5 +1,5 @@
 import { ArgsType, Field, Int } from "type-graphql";
-import { CatalogItemOrderBy } from "../../../enums/catalog-item.enum";
+import { CatalogItemOrderBy } from "../../../domain/enums/catalog-item.enum";
 import { CatalogItemWhereInput } from "./catalog-item.types";
 
 @ArgsType()

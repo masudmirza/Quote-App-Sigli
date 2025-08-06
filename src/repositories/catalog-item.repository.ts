@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { DataSource } from "typeorm";
-import { CatalogItemEntity } from "../entities/catalog-item.entity";
 import { BaseRelayTreeRepository } from "./base/base-relay-tree.repository";
+import { CatalogItemEntity } from "../domain/entities/catalog-item.entity";
 
 @Service()
 export class CatalogItemRepository extends BaseRelayTreeRepository<CatalogItemEntity> {

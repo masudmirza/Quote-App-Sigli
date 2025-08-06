@@ -5,16 +5,16 @@ export enum CatalogItem {
   TAG = "tag",
 }
 
-registerEnumType(CatalogItem, {
-  name: "CatalogItem",
-});
-
 export enum CatalogItemOrderBy {
   NAME_ASC = "name_asc",
   NAME_DESC = "name_desc",
   CREATED_AT_ASC = "created_at_asc",
   CREATED_AT_DESC = "created_at_desc",
 }
+
+registerEnumType(CatalogItem, {
+  name: "CatalogItem",
+});
 
 registerEnumType(CatalogItemOrderBy, {
   name: "CatalogItemOrderBy",

@@ -1,14 +1,14 @@
 import { Service } from "typedi";
 import { DataSource, SelectQueryBuilder } from "typeorm";
 import { DbContext } from "../database/db-context";
-import { CatalogItemEntity } from "../database/entities/catalog-item.entity";
+import { CatalogItemEntity } from "../domain/entities/catalog-item.entity";
 import {
   CatalogItemResponse,
   CatalogItemResponseDto,
   CreateCatalogItemRequest,
   UpdateCatalogItemRequest,
 } from "../dtos/catalog-item.dto";
-import { CatalogItem, CatalogItemOrderBy } from "../enums/catalog-item.enum";
+import { CatalogItem, CatalogItemOrderBy } from "../domain/enums/catalog-item.enum";
 import { Connection, ConnectionArgs, getPagingParameters } from "../graphql/relay";
 import {
   CatalogItemNode,
@@ -32,7 +32,13 @@ export class CatalogItemService {
       const repo = queryRunner.manager.getRepository(this.db.catalogItems.target);
       const { name, type, parentId } = input;
 
-      const exists = await repo.findOneBy({ name, type, parentId });
+      console.log("input ", input);
+
+      const exists = await repo.findOneBy({
+        name,
+        type,
+        parentId: parentId ?? undefined,
+      });
       if (exists) throw new BadRequestError(`${type} with name "${name}" already exists`);
 
       if (type === CatalogItem.TAG) {
@@ -43,14 +49,16 @@ export class CatalogItemService {
         if (!parent) throw new BadRequestError("Specified parent mood does not exist");
       }
 
-      const item = repo.create({ name, type, parentId });
+      const item = repo.create({ name, type, parentId: parentId ?? undefined });
       const savedItem = await repo.save(item);
 
       await queryRunner.commitTransaction();
       return CatalogItemResponseDto.parse(savedItem);
     } catch (error: any) {
+      console.log("error ", error);
+
       await queryRunner.rollbackTransaction();
-      throw new CustomError(error.statusCode || 500, error.errorCode);
+      throw new CustomError(error.statusCode || 500, error.errorCode || error.message);
     } finally {
       await queryRunner.release();
     }
@@ -67,13 +75,12 @@ export class CatalogItemService {
       if (!item) throw new BadRequestError("Catalog item not found");
 
       if (input.name) {
-        const duplicate = await repo.findOneBy({
+        const exists = await repo.findOneBy({
           name: input.name,
           type: input.type ?? item.type,
-          parentId: input.parentId ?? item.parentId,
         });
 
-        if (duplicate && duplicate.id !== id) {
+        if (exists && exists.id !== id) {
           throw new BadRequestError(
             `Another ${item.type} with the same name already exists`,
           );
@@ -83,7 +90,6 @@ export class CatalogItemService {
       }
 
       if (input.type) item.type = input.type;
-      if (input.parentId !== undefined) item.parentId = input.parentId;
 
       const savedItem = await repo.save(item);
       await queryRunner.commitTransaction();
@@ -103,12 +109,23 @@ export class CatalogItemService {
 
     try {
       const repo = queryRunner.manager.getRepository(this.db.catalogItems.target);
+
       const item = await repo.findOneBy({ id });
       if (!item) throw new BadRequestError("Catalog item not found");
 
-      await repo.softRemove(item);
-      await queryRunner.commitTransaction();
+      if (item.type === CatalogItem.MOOD) {
+        const tags = await repo.find({
+          where: { parentId: item.id, type: CatalogItem.TAG },
+        });
 
+        if (tags.length > 0) {
+          await repo.softRemove(tags);
+        }
+      }
+
+      await repo.softRemove(item);
+
+      await queryRunner.commitTransaction();
       return { success: true };
     } catch (error: any) {
       await queryRunner.rollbackTransaction();

@@ -33,8 +33,8 @@ export class CatalogItemController {
 
   async delete(request: any, reply: any) {
     try {
-      await this.catalogItemService.delete(request.params.id);
-      return reply.status(204).send();
+      const result = await this.catalogItemService.delete(request.params.id);
+      return reply.status(200).send(CustomResponse(200, result));
     } catch (error: any) {
       handleError(error, reply);
     }

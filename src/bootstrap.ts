@@ -5,7 +5,6 @@ import Container from "typedi";
 import { DataSource as TypeOrmDataSource } from "typeorm";
 import { config } from "./config";
 import { AppDataSource } from "./database/connection";
-import { SeederService } from "./database/services/seeder.service";
 import { AppRoutes } from "./routes/index.route";
 import { logger } from "./utils/logger";
 import { ApolloServer } from "@apollo/server";
@@ -15,6 +14,7 @@ import { buildSchema } from "type-graphql";
 import cors from "@fastify/cors";
 import { QuoteResolver } from "./graphql/resolvers/quote.resolver";
 import { UserResolver } from "./graphql/resolvers/user.resolver";
+import { SeederService } from "./seeders";
 
 export async function bootstrap() {
   const app = Fastify({ logger: true });
@@ -56,9 +56,7 @@ export async function bootstrap() {
   });
 
   await server.start().then(() => {
-    logger.info(
-      `🚀 Apollo Server started on http://0.0.0.0:${config.HTTP_PORT}/graphql`,
-    );
+    logger.info(`🚀 Apollo Server started on http://0.0.0.0:${config.HTTP_PORT}/graphql`);
   });
 
   app.route({
