@@ -142,6 +142,7 @@ export class CatalogItemService {
     const { limit, offset } = getPagingParameters(args);
 
     const queryBuilder = this.db.catalogItems.createQueryBuilder("ci");
+    queryBuilder.andWhere("ci.deletedAt IS NULL");
 
     this.buildWhere(queryBuilder, args.where);
     this.buildOrderBy(queryBuilder, args.orderBy);

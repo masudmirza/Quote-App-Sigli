@@ -27,13 +27,9 @@ export class CatalogItemSeeder {
       };
 
       for (const [moodName, tags] of Object.entries(moodToTags)) {
-        let mood = await catalogRepo.findOne({
-          where: {
-            name: moodName,
-            type: CatalogItem.MOOD,
-            deletedAt: Not(IsNull()),
-          },
-          withDeleted: true,
+        let mood = await catalogRepo.findOneBy({
+          name: moodName,
+          type: CatalogItem.MOOD,
         });
 
         if (!mood) {
@@ -45,14 +41,10 @@ export class CatalogItemSeeder {
         }
 
         for (const tagName of tags) {
-          const existingTag = await catalogRepo.findOne({
-            where: {
-              name: tagName,
-              type: CatalogItem.TAG,
-              parentId: mood.id,
-              deletedAt: Not(IsNull()),
-            },
-            withDeleted: true,
+          const existingTag = await catalogRepo.findOneBy({
+            name: tagName,
+            type: CatalogItem.TAG,
+            parentId: mood.id,
           });
 
           if (!existingTag) {
