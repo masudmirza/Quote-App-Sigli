@@ -55,8 +55,6 @@ export class CatalogItemService {
       await queryRunner.commitTransaction();
       return CatalogItemResponseDto.parse(savedItem);
     } catch (error: any) {
-      console.log("error ", error);
-
       await queryRunner.rollbackTransaction();
       throw new CustomError(error.statusCode || 500, error.errorCode || error.message);
     } finally {
